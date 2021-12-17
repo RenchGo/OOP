@@ -1,135 +1,238 @@
 #include <iostream>
-#include <iomanip>
-
 using namespace std;
-char s[255] = "adadad\n";
 
-// with 2 par
-ostream& endp(ostream& out, int n, string s) {
-
-    char ss[255];
-    static int k = 0;
-    int i, j, c = n;
-    for (i = 0, j = 0; s[j] != '\0'; i++, j++)
-    {
-        ss[i] = s[j];
-        if (ss[i] == '\n')
-        {
-            k++;
-            if (k == c)
-            {
-                ss[i + 1] = '\n';
-                out << "\n-------------\n";
-                i = -1;
-            }
-        }
-    }
-    if (i < 0)
-    {
-        ss[i + 1] = '\0';
-        out << ss;
-    }
-    out << s;
-    return out;
+template <class T> void swap(const T& a, const T& b) {
+    T temp = a;
+    a = b;
+    b = temp;
 }
 
-// with par
-ostream& endp(ostream& out, int n) {
-
-    char ss[255];
-    static int k = 0;
-    int i, j, c = n;
-    for (i = 0, j = 0; s[j] != '\0'; i++, j++)
-    {
-        ss[i] = s[j];
-        if (ss[i] == '\n')
-        {
-            k++;
-            if (k == c)
-            {
-                ss[i + 1] = '\n';
-                out << "\n-------------\n";
-                i = -1;
-            }
-        }
-    }
-    if (i < 0)
-    {
-        ss[i + 1] = '\0';
-        out << ss;
-    }
-    return out;
+template <typename T> T max(T& a, T& b)
+{
+    cout << "template" << endl;
+    return a > b ? a : b;
 }
 
-// un par
-ostream& endp(ostream& out) {
+const char* max(const char* a, const char* b)
+{
+    cout << "specialized" << endl;
+    return (a > b) ? a : b;
+}
+class Complex {
+private:
 
-    char ss[255];
-    static int k = 0;
-    int i, j, c = 5;
-    for (i = 0, j = 0; s[j] != '\0'; i++, j++)
+    double m_re, m_im;
+
+public:
+
+    Complex();
+    Complex(double re, double im = 0);
+
+    double GetRe() {
+        return m_re;
+    }
+    double GetIm() {
+        return m_im;
+    }
+
+
+    Complex operator*(const Complex& a) {
+        return Complex(m_re * a.m_re - m_im * a.m_im,
+            m_re * a.m_im - m_im * a.m_re);
+    }
+
+    Complex operator*(const double& a) {
+        return Complex(m_re * a, m_im * a);
+    }
+
+    Complex& operator=(const Complex& a)
     {
-        ss[i] = s[j];
-        if (ss[i] == '\n')
+        if (this != &a)
         {
-            k++;
-            if (k == c)
-            {
-                ss[i + 1] = '\n';
-                out << "\n-------------\n";
-                i = -1;
-            }
+            m_re = a.m_re;
+            m_im = a.m_im;
         }
+        return *this;
     }
-    if (i < 0)
+    double& operator=(const double& a)
     {
-        ss[i + 1] = '\0';
-        out << ss;
+        return m_re;
     }
-    return out;
+
+    friend ostream& operator<< (ostream& out, const Complex& x)
+    {
+        return (out << "(" << x.m_re << "," << x.m_im << ")");
+    }
+};
+
+
+template <class T>
+class matrix {
+
+private:
+    T** M;
+    int m;
+    int n;
+
+public:
+
+    matrix()
+    {
+        n = m = 0;
+    }
+
+    matrix(int _m, int _n)
+    {
+        m = _m;
+        n = _n;
+
+        M = (T**) new T * [m];
+
+
+        for (int i = 0; i < m; i++)
+            M[i] = (T*)new T[n];
+
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                M[i][j] = 0;
+    }
+
+    void SetMij(int i, int j, T value)
+    {
+        if ((i < 0) || (i >= m))
+            return;
+        if ((j < 0) || (j >= n))
+            return;
+        M[i][j] = value;
+    }
+
+    void Print(const char* ObjName)
+    {
+        cout << "Object: " << ObjName << endl;
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < n; j++)
+                cout << M[i][j] << "\t";
+            cout << endl;
+        }
+        cout << "---------------------" << endl << endl;
+    }
+
+    matrix operator=(const matrix& _M)
+    {
+        if (n > 0)
+        {
+
+            for (int i = 0; i < m; i++)
+                delete[] M[i];
+        }
+
+        if (m > 0)
+        {
+            delete[] M;
+        }
+
+        m = _M.m;
+        n = _M.n;
+
+        M = (T**) new T * [m];
+        for (int i = 0; i < m; i++)
+            M[i] = (T*) new T[n];
+
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                M[i][j] = _M.M[i][j];
+        return *this;
+
+
+    }
+    ~matrix()
+    {
+        if (n > 0)
+        {
+            for (int i = 0; i < m; i++)
+                delete[] M[i];
+        }
+
+        if (m > 0)
+            delete[] M;
+    }
+
+
+};
+
+template <typename T> class Stack
+{
+    T* stackPtr;
+    int size;
+    T top;
+
+public:
+    Stack(int = 10);
+
+    ~Stack();
+
+    bool push(const T);
+    bool pop();
+    void printStack();
+};
+
+template <typename T> Stack<T>::Stack(int s)
+{
+    size = s > 0 ? s : 10;
+    stackPtr = new T[size];
+    top = -1;
 }
 
+template <typename T> Stack<T>::~Stack()
+{
+    delete[] stackPtr;
+}
+
+template <typename T> bool Stack<T>::push(const T value)
+{
+    if (top == size - 1)
+        return false;
+
+    top++;
+    stackPtr[top] = value;
+
+    return true;
+}
+
+template <typename T> bool Stack<T>::pop()
+{
+    if (top == -1)
+        return false;
+
+    stackPtr[top] = 0;
+    top--;
+
+    return true;
+}
+
+template <typename T> void Stack<T>::printStack()
+{
+    for (int ix = size - 1; ix >= 0; ix--)
+        cout << "|" << setw(4) << stackPtr[ix] << endl;
+}
 
 int main() {
 
-    float f = 12.39481;
-    cout << f << endl;
-    string s = "this is A tesT sTrInG";
+    int i = max(4, 8);
+    double d = max(17.2, 17.3);
+    const char* ch = max("Hello", "World");
+    cout << "i = " << i << endl;
+    cout << "d = " << d << endl;
+    cout << "ch = " << ch << endl;
 
-    cout << scientific << f << endl;
-    cout << setw(30) << setfill('-') << right << fixed << f << endl;
-    cout << setw(30) << setfill('-') << left << f << endl;
+    matrix<int> in(2, 3);
+    in.SetMij(1, 1, 2.1);
+    in.SetMij(1, 2, 3);
+    in.SetMij(2, 1, 'h');
 
-    cout << fixed << "2 \n";
-    int a = 28;
-    cout << hex << a << endl;
-    cout << oct << a << endl;
-    cout << dec << a << endl;
-    cout.setf(ios::showpos);
-    cout << a << endl;
-    cout.unsetf(ios::showpos);
+    Complex comp(1.0);
 
-    //--------------------------------------------------EX4.1--------------------------------------------------
-    cout << endl << endl << setfill('*') << setw(50) << "ex4" << endl;
-    for (int i = 0; i < 7; i++)
-        cout << s << endp;
-
-    //--------------------------------------------------EX4.2--------------------------------------------------
-    /*
-    cout << endl << endl << setfill('*') << setw(50) << "ex4.1" << endl;
-    for (i = 0; i < 7; i++)
-        cout << s << endp(2);
-    */
-    // work but in theory
-
-    //--------------------------------------------------EX4.3--------------------------------------------------
-    /*
-    cout << endl << endl << setfill('*') << setw(50) << "ex4.1" << endl;
-    int f = 2;
-    for (i = 0; i < 7; i++)
-        cout << s << endp(f,s);
-    */
-    // work but in theory
-
+    in.SetMij(2, 2, comp);
     return 0;
 }
